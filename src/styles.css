@@ -1,0 +1,43 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #05070a;
+  color: #f6fbff;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top, #14372d, #05070a 48%); }
+button { border: 0; border-radius: 999px; padding: .9rem 1.15rem; font-weight: 800; color: #04110c; background: linear-gradient(135deg, #7cffc2, #8ab4ff); box-shadow: 0 10px 30px rgba(124,255,194,.25); }
+button:disabled { opacity: .45; }
+
+.app { width: min(1120px, 100%); margin: 0 auto; padding: 18px; display: grid; gap: 18px; }
+.hero, .camera-card, .raw-card, .metric { border: 1px solid rgba(255,255,255,.12); background: rgba(9,14,20,.78); backdrop-filter: blur(18px); border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.30); }
+.hero { padding: 24px; }
+.eyebrow { margin: 0 0 8px; color: #7cffc2; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .75rem; }
+h1 { margin: 0; font-size: clamp(2.25rem, 12vw, 5.5rem); line-height: .88; letter-spacing: -.08em; }
+.lede { max-width: 720px; color: #b8c7d3; font-size: 1.05rem; line-height: 1.55; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.status { color: #9fb0bf; }
+
+.camera-card { overflow: hidden; display: grid; grid-template-columns: 1fr; }
+.video-wrap { position: relative; min-height: 420px; background: #010203; }
+video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.score-panel { display: flex; align-items: center; gap: 14px; padding: 18px 22px; }
+.label { color: #9fb0bf; text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; }
+#overall { margin-left: auto; font-size: clamp(3rem, 18vw, 7rem); line-height: .8; color: #7cffc2; }
+.pill { border-radius: 999px; padding: .35rem .7rem; background: #26313f; color: #dce8f2; font-size: .8rem; font-weight: 800; text-transform: uppercase; }
+.pill[data-status="good"] { background: #153c2c; color: #7cffc2; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.metric { padding: 16px; }
+.metric span, .metric small { display: block; color: #9fb0bf; text-transform: uppercase; letter-spacing: .09em; font-size: .72rem; }
+.metric strong { display: block; margin: 10px 0 6px; font-size: 1.75rem; }
+.raw-card { padding: 18px; }
+.raw-card h2 { margin-top: 0; }
+pre { margin: 0; white-space: pre-wrap; word-break: break-word; color: #cde5f7; font-size: .85rem; }
+
+@media (min-width: 860px) {
+  .camera-card { grid-template-columns: minmax(0, 1fr) 260px; }
+  .score-panel { align-items: flex-start; flex-direction: column; justify-content: center; }
+  #overall { margin-left: 0; }
+}
