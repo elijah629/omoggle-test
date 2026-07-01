@@ -28,8 +28,6 @@ const ctx = canvas.getContext('2d');
 const statusEl = document.querySelector('#status');
 const startButton = document.querySelector('#startButton');
 const switchButton = document.querySelector('#switchButton');
-const photoInput = document.querySelector('#photoInput');
-const photoPreview = document.querySelector('#photoPreview');
 const overallEl = document.querySelector('#overall');
 const faceStatusEl = document.querySelector('#faceStatus');
 const grid = document.querySelector('#metricGrid');
@@ -40,9 +38,6 @@ let stream;
 let useFrontCamera = true;
 let lastVideoTime = -1;
 let lastPayload = null;
-let isCameraRunning = false;
-let currentMode = 'VIDEO';
-let photoObjectUrl = null;
 
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const angle = (a, b) => Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
@@ -141,35 +136,24 @@ function estimateQuality(landmarks, roll) {
   return clamp(0.72 + centered * 0.18 + rollScore * 0.10, 0.55, 1);
 }
 
-async function setupLandmarker(mode = 'VIDEO') {
+async function setupLandmarker() {
+  if (landmarker) return;
   statusEl.textContent = 'Loading face model…';
-  if (!landmarker) {
-    const fileset = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22-rc.20250304/wasm');
-    landmarker = await FaceLandmarker.createFromOptions(fileset, {
-      baseOptions: {
-        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task',
-        delegate: 'GPU',
-      },
-      outputFaceBlendshapes: false,
-      runningMode: mode,
-      numFaces: 1,
-    });
-    currentMode = mode;
-    return;
-  }
-  if (currentMode !== mode) {
-    await landmarker.setOptions({ runningMode: mode });
-    currentMode = mode;
-  }
+  const fileset = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22-rc.20250304/wasm');
+  landmarker = await FaceLandmarker.createFromOptions(fileset, {
+    baseOptions: {
+      modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task',
+      delegate: 'GPU',
+    },
+    outputFaceBlendshapes: false,
+    runningMode: 'VIDEO',
+    numFaces: 1,
+  });
 }
 
 async function startCamera() {
-  await setupLandmarker('VIDEO');
+  await setupLandmarker();
   if (stream) stream.getTracks().forEach((track) => track.stop());
-  clearPhotoPreview();
-  isCameraRunning = true;
-  video.hidden = false;
-  canvas.style.transform = 'scaleX(-1)';
   stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: useFrontCamera ? 'user' : 'environment', width: { ideal: 720 }, height: { ideal: 960 } }, audio: false });
   video.srcObject = stream;
   await video.play();
@@ -179,7 +163,6 @@ async function startCamera() {
 }
 
 function loop() {
-  if (!isCameraRunning) return;
   if (!video.videoWidth) return requestAnimationFrame(loop);
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -201,49 +184,6 @@ function draw(landmarks) {
   drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, { color: '#51f6b2', lineWidth: 2 });
   drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, { color: '#8ab4ff', lineWidth: 2 });
   drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, { color: '#8ab4ff', lineWidth: 2 });
-}
-
-function clearPhotoPreview() {
-  photoPreview.hidden = true;
-  photoPreview.removeAttribute('src');
-  if (photoObjectUrl) URL.revokeObjectURL(photoObjectUrl);
-  photoObjectUrl = null;
-}
-
-async function scoreUploadedPhoto(file) {
-  if (!file) return;
-  isCameraRunning = false;
-  if (stream) stream.getTracks().forEach((track) => track.stop());
-  stream = null;
-  video.pause();
-  video.removeAttribute('src');
-  video.srcObject = null;
-  video.hidden = true;
-  switchButton.disabled = true;
-  await setupLandmarker('IMAGE');
-  if (photoObjectUrl) URL.revokeObjectURL(photoObjectUrl);
-  photoObjectUrl = URL.createObjectURL(file);
-  photoPreview.src = photoObjectUrl;
-  photoPreview.hidden = false;
-  canvas.style.transform = 'none';
-  statusEl.textContent = 'Scoring uploaded photo…';
-  await photoPreview.decode();
-  canvas.width = photoPreview.naturalWidth;
-  canvas.height = photoPreview.naturalHeight;
-  const result = landmarker.detect(photoPreview);
-  draw(result.faceLandmarks?.[0]);
-  const payload = computeScore(result.faceLandmarks?.[0], photoPreview.naturalWidth, photoPreview.naturalHeight);
-  if (payload) {
-    render({ ...payload, source: { type: 'photo', name: file.name, width: photoPreview.naturalWidth, height: photoPreview.naturalHeight } });
-    statusEl.textContent = 'Photo scored. Upload another photo or start the camera for live scoring.';
-  } else {
-    overallEl.textContent = '--';
-    faceStatusEl.textContent = 'no face';
-    faceStatusEl.dataset.status = 'adjust';
-    grid.innerHTML = '';
-    rawData.textContent = 'No face landmarks found in the uploaded photo.';
-    statusEl.textContent = 'No face found. Try a clearer, front-facing photo.';
-  }
 }
 
 function render(payload) {
@@ -273,13 +213,6 @@ startButton.addEventListener('click', () => startCamera().catch((error) => {
 switchButton.addEventListener('click', () => {
   useFrontCamera = !useFrontCamera;
   startCamera().catch((error) => statusEl.textContent = `Camera failed: ${error.message}`);
-});
-
-photoInput.addEventListener('change', () => {
-  scoreUploadedPhoto(photoInput.files?.[0]).catch((error) => {
-    console.error(error);
-    statusEl.textContent = `Photo failed: ${error.message}`;
-  });
 });
 
 window.__omoggleScore = () => lastPayload;

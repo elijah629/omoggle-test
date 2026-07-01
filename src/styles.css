@@ -7,9 +7,8 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top, #14372d, #05070a 48%); }
-button, .upload-button { border: 0; border-radius: 999px; padding: .9rem 1.15rem; font-weight: 800; color: #04110c; background: linear-gradient(135deg, #7cffc2, #8ab4ff); box-shadow: 0 10px 30px rgba(124,255,194,.25); cursor: pointer; }
-button:disabled { opacity: .45; cursor: not-allowed; }
-input[type="file"] { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
+button { border: 0; border-radius: 999px; padding: .9rem 1.15rem; font-weight: 800; color: #04110c; background: linear-gradient(135deg, #7cffc2, #8ab4ff); box-shadow: 0 10px 30px rgba(124,255,194,.25); }
+button:disabled { opacity: .45; }
 
 .app { width: min(1120px, 100%); margin: 0 auto; padding: 18px; display: grid; gap: 18px; }
 .hero, .camera-card, .raw-card, .metric { border: 1px solid rgba(255,255,255,.12); background: rgba(9,14,20,.78); backdrop-filter: blur(18px); border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.30); }
@@ -22,8 +21,7 @@ h1 { margin: 0; font-size: clamp(2.25rem, 12vw, 5.5rem); line-height: .88; lette
 
 .camera-card { overflow: hidden; display: grid; grid-template-columns: 1fr; }
 .video-wrap { position: relative; min-height: 420px; background: #010203; }
-video, #photoPreview, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-video { transform: scaleX(-1); }
+video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .score-panel { display: flex; align-items: center; gap: 14px; padding: 18px 22px; }
 .label { color: #9fb0bf; text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; }
 #overall { margin-left: auto; font-size: clamp(3rem, 18vw, 7rem); line-height: .8; color: #7cffc2; }
