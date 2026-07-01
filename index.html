@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omoggle Face Score</title>
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <p class="eyebrow">Phone camera face rater</p>
+        <h1>Omoggle-style live score</h1>
+        <p class="lede">Open this over HTTPS on your phone, allow the camera, and get a quick 0–10 score plus every metric the reverse-engineered script describes.</p>
+        <div class="actions">
+          <button id="startButton">Start camera</button>
+          <button id="switchButton" disabled>Switch camera</button>
+          <label class="upload-button" for="photoInput">Upload photo</label>
+          <input id="photoInput" type="file" accept="image/*" />
+        </div>
+        <p id="status" class="status">Ready. Camera access requires HTTPS or localhost.</p>
+      </section>
+
+      <section class="camera-card">
+        <div class="video-wrap">
+          <video id="video" playsinline muted></video>
+          <img id="photoPreview" alt="Uploaded face preview" hidden />
+          <canvas id="overlay"></canvas>
+        </div>
+        <div class="score-panel">
+          <span class="label">Overall</span>
+          <strong id="overall">--</strong>
+          <span id="faceStatus" class="pill">waiting</span>
+        </div>
+      </section>
+
+      <section class="grid" id="metricGrid" aria-live="polite"></section>
+
+      <section class="raw-card">
+        <h2>Raw data</h2>
+        <pre id="rawData">No face data yet.</pre>
+      </section>
+    </main>
+  </body>
+</html>
