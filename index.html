@@ -15,6 +15,8 @@
         <div class="actions">
           <button id="startButton">Start camera</button>
           <button id="switchButton" disabled>Switch camera</button>
+          <label class="upload-button" for="photoInput">Upload photo</label>
+          <input id="photoInput" type="file" accept="image/*" />
         </div>
         <p id="status" class="status">Ready. Camera access requires HTTPS or localhost.</p>
       </section>
@@ -22,6 +24,7 @@
       <section class="camera-card">
         <div class="video-wrap">
           <video id="video" playsinline muted></video>
+          <img id="photoPreview" alt="Uploaded face preview" hidden />
           <canvas id="overlay"></canvas>
         </div>
         <div class="score-panel">
